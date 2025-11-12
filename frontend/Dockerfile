@@ -3,15 +3,18 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Build arguments
+ARG VITE_API_BASE_URL=http://localhost:8017
+
 # Copy package files
 COPY package*.json ./
 RUN npm ci
 
-# Copy environment file if it exists (for build-time variables)
-COPY .env* ./
-
 # Copy source code
 COPY . .
+
+# Create .env file with build-time variables
+RUN echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" > .env
 
 # Build the application
 RUN npm run build
@@ -26,11 +29,11 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
-EXPOSE 8011
+EXPOSE 8018
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:8011 || exit 1
+    CMD wget --quiet --tries=1 --spider http://localhost:8018 || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]

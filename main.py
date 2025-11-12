@@ -142,6 +142,22 @@ def run_once(question: str, overrides: Optional[Dict[str, Any]] = None, user_id:
 
 
 if __name__ == "__main__":
-    q = input("Enter question: ").strip() or "Show sample sales for last week"
-    result = run_once(q)
-    print({"artifacts": result.get("artifacts", {}), "status": result.get("status")})
+    # Initialize MCP servers for standalone execution
+    from mcp_client import initialize_mcp_sync, cleanup_mcp_sync
+    try:
+        print("[Main] Initializing MCP servers...")
+        initialize_mcp_sync()
+        print("[Main] MCP servers ready")
+    except Exception as e:
+        print(f"[Main] Warning: Failed to initialize MCP servers: {e}")
+        print("[Main] The app will continue but MCP features may not work")
+    
+    try:
+        q = input("Enter question: ").strip() or "Show sample sales for last week"
+        result = run_once(q)
+        print({"artifacts": result.get("artifacts", {}), "status": result.get("status")})
+    finally:
+        try:
+            cleanup_mcp_sync()
+        except Exception:
+            pass

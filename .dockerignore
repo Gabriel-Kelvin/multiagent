@@ -4,18 +4,13 @@ __pycache__/
 *$py.class
 *.so
 .Python
-*.egg-info/
-dist/
-build/
-.venv/
 venv/
 env/
 ENV/
 
-# Environment
-.env
-.env.local
-.env.*.local
+# Logs
+logs/
+*.log
 
 # IDE
 .vscode/
@@ -24,26 +19,33 @@ ENV/
 *.swo
 *~
 
-# Logs and artifacts
-logs/
-artifacts/
-*.log
-*.db
-
 # Git
 .git/
 .gitignore
 
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
-
 # Documentation
 *.md
-README.md
+!README.md
 
-# Node (if any in root)
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Frontend
+frontend/
 node_modules/
-package-lock.json
 
+# Temp files
+*.tmp
+*.bak
+.DS_Store
+
+# Environment (will be provided at runtime)
+.env.local
+.env.*.local

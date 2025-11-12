@@ -13,3 +13,5 @@ psycopg2-binary
 matplotlib
 requests
 pymongo
+mcp
+httpx

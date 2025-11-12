@@ -4,14 +4,39 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+from contextlib import asynccontextmanager
 
 from main import run_once
 from app.database import Database
 from app.config import settings
 from utils import db_utils
 from agents.scheduler_agent import SchedulerService
+from mcp_client import initialize_mcp_sync, cleanup_mcp_sync
 
-app = FastAPI(title="Multi-Agent Data Assistant")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage MCP server lifecycle."""
+    print("[Server] Initializing MCP servers...")
+    try:
+        initialize_mcp_sync()
+        print("[Server] MCP servers initialized successfully")
+    except Exception as e:
+        print(f"[Server] Warning: Failed to initialize MCP servers: {e}")
+        print("[Server] The app will continue but MCP features may not work")
+    
+    yield
+    
+    # Cleanup on shutdown
+    print("[Server] Shutting down MCP servers...")
+    try:
+        cleanup_mcp_sync()
+        print("[Server] MCP servers shut down successfully")
+    except Exception as e:
+        print(f"[Server] Warning during MCP cleanup: {e}")
+
+
+app = FastAPI(title="Multi-Agent Data Assistant", lifespan=lifespan)
 
 # CORS for local React dev and general access; adjust for production
 app.add_middleware(
